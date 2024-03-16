@@ -117,9 +117,9 @@ try {
         return timestamp;
     });
     
-    console.log("Abstain Timestamp Array:", timestampArrayAbstain);
-    console.log("Nay Timestamp Array:", timestampArrayNay);
-    console.log("Aye Timestamp Array:", timestampArrayAye);
+    // console.log("Abstain Timestamp Array:", timestampArrayAbstain);
+    // console.log("Nay Timestamp Array:", timestampArrayNay);
+    // console.log("Aye Timestamp Array:", timestampArrayAye);
     
 const wsProvider = new WsProvider('wss://rpc.polkadot.io');
 const api = await ApiPromise.create({ provider: wsProvider });
