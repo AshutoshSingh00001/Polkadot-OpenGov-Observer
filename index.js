@@ -268,19 +268,14 @@ const matchingVotesAye = aye.filter(vote => {
 //     tweet();
   };
 
-function handler(req, res) {
-  res.status(200).end(subscan() && polkassembly());
-}
+  const pollingJob = new CronJob("0 */5 * * * *", async () => {
+    console.log("Checking for new votes...");
+    await subscan();
+    await polkassembly();
+});
 
-module.exports = handler;
-//   const pollingJob = new CronJob("0 */5 * * * *", async () => {
-//     console.log("Checking for new votes...");
-//     await subscan();
-//     await polkassembly();
-// });
-
-// // Start the CronJob
-// pollingJob.start();
+// Start the CronJob
+pollingJob.start();
 
 
 //   const pollingInterval = 600000; // 1 minute
