@@ -213,7 +213,13 @@ const matchingVotesAye = aye.filter(vote => {
                     return "";
                 }
             }));
-            const lockPeriod = matchingVotes.map(vote => vote.lockPeriod === 0 ? 0.1 : vote.lockPeriod);
+            const lockPeriod = matchingVotes.map(vote => {
+              if (vote.lockPeriod === 0 || vote.lockPeriod === null) {
+                  return 0.1;
+              } else {
+                  return vote.lockPeriod;
+              }
+          });          
             const balanceDot = matchingVotes.map(vote => vote.balance / 10000000000);
             const TotalDOT = Math.floor(balanceDot)
             const formattedTotalDOT = TotalDOT.toLocaleString();
