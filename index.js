@@ -117,9 +117,9 @@ try {
         return timestamp;
     });
     
-    console.log("Abstain Timestamp Array:", timestampArrayAbstain);
-    console.log("Nay Timestamp Array:", timestampArrayNay);
-    console.log("Aye Timestamp Array:", timestampArrayAye);
+    // console.log("Abstain Timestamp Array:", timestampArrayAbstain);
+    // console.log("Nay Timestamp Array:", timestampArrayNay);
+    // console.log("Aye Timestamp Array:", timestampArrayAye);
     
 const wsProvider = new WsProvider('wss://rpc.polkadot.io');
 const api = await ApiPromise.create({ provider: wsProvider });
@@ -267,16 +267,14 @@ const matchingVotesAye = aye.filter(vote => {
 
 //     tweet();
   };
-subscan()
-polkassembly()
-//   const pollingJob = new CronJob("0 */5 * * * *", async () => {
-//     console.log("Checking for new votes...");
-//     await subscan();
-//     await polkassembly();
-// });
+  const pollingJob = new CronJob("0 */5 * * * *", async () => {
+    console.log("Checking for new votes...");
+    await subscan();
+    await polkassembly();
+});
 
-// // Start the CronJob
-// pollingJob.start();
+// Start the CronJob
+pollingJob.start();
 
 
 //   const pollingInterval = 600000; // 1 minute
