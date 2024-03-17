@@ -267,8 +267,10 @@ const matchingVotesAye = aye.filter(vote => {
 
 //     tweet();
   };
-subscan()
-polkassembly()
+
+export default function handler(req, res) {
+  res.status(200).end('Hello Cron!');
+}
 //   const pollingJob = new CronJob("0 */5 * * * *", async () => {
 //     console.log("Checking for new votes...");
 //     await subscan();
