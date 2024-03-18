@@ -1,17 +1,20 @@
-require("dotenv").config({ path: __dirname + "/.env" });
-const { twitterClient } = require("./twitterClient.js")
-const CronJob = require("cron").CronJob;
-const express = require('express')
-const app = express()
+// Import required modules
+const express = require('express');
+const cron = require("cron");
+const fetch = require('node-fetch');
+const { twitterClient } = require("./twitterClient.js");
+
+// Initialize Express app
+const app = express();
 const port = process.env.PORT || 4000;
 
-
+// Start the server
 app.listen(port, () => {
-    console.log(`Listening on port ${port}`)
-  })
+    console.log(`Server is running on port ${port}`);
+});
 
-
-const OpenGovTracks = async() => {
+// Define a function to fetch data from Subscan API
+async function fetchSubscanData() {
     const data = {
         "data": {
             "confirm_total": 0,
@@ -21,66 +24,81 @@ const OpenGovTracks = async() => {
         },
         "generated_at": 1699600641,
         "message": "Success"
-    }
-    
-      try {
-        const response = await fetch("https://polkadot.api.subscan.io/api/scan/referenda/statistics", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-          },
-          body: JSON.stringify(data)
-        });
-        try {
-            const getresponse = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=Polkadot&vs_currencies=USD", {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json; charset=utf-8',
-              },
-            });
-        
-            const Data = await getresponse.json();
-            const dotPrice = Data.polkadot.usd
-            if (dotPrice !== undefined) {
-              // Proceed with your logic
-              console.log(dotPrice);
-          } else {
-              console.error("USD price not found in response data");
-          }
-    
-        const responseData = await response.json();
-        const referendum_locked = Math.floor(responseData.data.referendum_locked / 10000000000)
-        const formattedreferendum_locked = referendum_locked.toLocaleString();
-        const referendum_lockedusd = (referendum_locked * dotPrice).toLocaleString()
-        const formattedReferendumParticipates = Math.floor(responseData.data.referendum_participate / 10000000000000)
-        const referendum_participate = formattedReferendumParticipates.toLocaleString()
-        const voting_total = responseData.data.voting_total
-        const confirm_total = responseData.data.confirm_total
-        const next_burn = (referendum_locked / 100).toLocaleString()
-        const next_burn_usd = ((referendum_locked / 100) * dotPrice).toLocaleString()
-        console.log(next_burn, referendum_locked,referendum_participate)
-        const tweetData = `OpenGov Treasury Overview \n Available ${formattedreferendum_locked} DOT ($${referendum_lockedusd} USD) \n Next Burn ${next_burn} DOT ($${next_burn_usd} USD) \n DOT Price $${dotPrice} USD \n Active Voters ${referendum_participate} \n Active Referendums ${voting_total} \n Confirming Referendums ${confirm_total} \n\n #DOT #POLKADOT #OpenGOV #votes  `
-        const tweet = async () => {
-            try {
-              await twitterClient.v2.tweet(tweetData);
-            } catch (e) {
-              console.log(e)
-            }
-             }
-         
-            //  const cronTweet = new CronJob("0 0 * * 0", async () => {
-            //     tweet();
-            //   });
-              
-            //   cronTweet.start();
-            tweet()
-            } catch (error) {
-                console.error('Error:', error);
-              }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-  }
+    };
 
-  
-  OpenGovTracks()
+    try {
+        const response = await fetch("https://polkadot.api.subscan.io/api/scan/referenda/statistics", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch Subscan data: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching Subscan data:', error);
+        throw error;
+    }
+}
+
+// Define a function to fetch DOT price from Coingecko API
+async function fetchDotPrice() {
+    try {
+        const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=Polkadot&vs_currencies=USD");
+        if (!response.ok) {
+            throw new Error(`Failed to fetch DOT price from Coingecko: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.polkadot.usd;
+    } catch (error) {
+        console.error('Error fetching DOT price from Coingecko:', error);
+        throw error;
+    }
+}
+
+// Define a function to post tweets
+async function postTweet(tweetData) {
+    try {
+        await twitterClient.v2.tweet(tweetData);
+        console.log("Tweet posted successfully");
+    } catch (error) {
+        console.error('Error posting tweet:', error);
+        throw error;
+    }
+}
+
+// Define a function to handle OpenGov tracks
+async function openGovTracks() {
+    try {
+        const [subscanData, dotPrice] = await Promise.all([fetchSubscanData(), fetchDotPrice()]);
+
+        const referendum_locked = Math.floor(subscanData.data.referendum_locked / 10000000000);
+        const formattedReferendumLocked = referendum_locked.toLocaleString();
+        const referendumLockedUsd = (referendum_locked * dotPrice).toLocaleString();
+        const formattedReferendumParticipates = Math.floor(subscanData.data.referendum_participate / 10000000000000);
+        const referendumParticipate = formattedReferendumParticipates.toLocaleString();
+        const votingTotal = subscanData.data.voting_total;
+        const confirmTotal = subscanData.data.confirm_total;
+        const nextBurn = (referendum_locked / 100).toLocaleString();
+        const nextBurnUsd = ((referendum_locked / 100) * dotPrice).toLocaleString();
+
+        const tweetData = `OpenGov Treasury Overview \n Available ${formattedReferendumLocked} DOT ($${referendumLockedUsd} USD) \n Next Burn ${nextBurn} DOT ($${nextBurnUsd} USD) \n DOT Price $${dotPrice} USD \n Active Voters ${referendumParticipate} \n Active Referendums ${votingTotal} \n Confirming Referendums ${confirmTotal} \n\n #DOT #POLKADOT #OpenGOV #votes`;
+
+        await postTweet(tweetData);
+    } catch (error) {
+        console.error('Error in OpenGovTracks:', error);
+        throw error;
+    }
+}
+
+// Schedule the OpenGovTracks function to run at regular intervals using Cron
+openGovTracks()
+
+// Export the Express app (optional)
+module.exports = app;
