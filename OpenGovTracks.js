@@ -41,7 +41,12 @@ const OpenGovTracks = async() => {
         
             const Data = await getresponse.json();
             const dotPrice = Data.polkadot.usd
-            console.log(dotPrice)
+            if (dotPrice !== undefined) {
+              // Proceed with your logic
+              console.log(dotPrice);
+          } else {
+              console.error("USD price not found in response data");
+          }
     
         const responseData = await response.json();
         const referendum_locked = Math.floor(responseData.data.referendum_locked / 10000000000)
