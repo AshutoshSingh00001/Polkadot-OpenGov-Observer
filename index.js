@@ -227,10 +227,15 @@ const matchingVotesAye = aye.filter(vote => {
             const referendumLink = `https://polkadot.polkassembly.io/referenda/${postId}`
             const tweetData = `${identities.join(', ')} ${twitter} voted ${decision} with ${formattedTotalDOT} DOT with a total effective votes of ${effectiveVotes} DOT and ${lockPeriod}x conviction on Referendum ${postId} ${referendumLink}\n\n#DOT #POLKADOT #OpenGOV #votes`;
             const tweet = async () => {
-                try {
-                    await twitterClient.v2.tweet(tweetData);
-                } catch (e) {
-                    console.log(e);
+                if(effectiveVotes > 500) {
+                    try {
+                        await twitterClient.v2.tweet(tweetData);
+                    } catch (e) {
+                        console.log(e);
+                    }
+                    console.log('tweet maded')
+                } else {
+                    console.log("Tweet failed some error")
                 }
             };
             console.log(voters);
