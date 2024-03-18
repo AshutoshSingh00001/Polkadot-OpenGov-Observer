@@ -241,12 +241,12 @@ const matchingVotesAye = aye.filter(vote => {
             console.log(postId)
             console.log(identities.join(', '))
             console.log(twitter)
-            // const post = async() => {
-            //   if(effectiveVotes > 500) {
-            //     return tweet();
-            //   }
-            // }
-            return tweet()
+              if(effectiveVotes > 500) {
+                return await tweet();
+              } else {
+                console.log("no tweet")
+              }
+            //   return tweet()
         } else {
             console.log(`${voteType} failed`);
         }
