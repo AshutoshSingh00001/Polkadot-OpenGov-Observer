@@ -47,7 +47,7 @@ const OpenGovTracks = async() => {
         const referendum_locked = Math.floor(responseData.data.referendum_locked / 10000000000)
         const formattedreferendum_locked = referendum_locked.toLocaleString();
         const referendum_lockedusd = (referendum_locked * dotPrice).toLocaleString()
-        const formattedReferendumParticipates = Math.floor(responseData.data.referendum_participate / 10000000000)
+        const formattedReferendumParticipates = Math.floor(responseData.data.referendum_participate / 10000000000000)
         const referendum_participate = formattedReferendumParticipates.toLocaleString()
         const voting_total = responseData.data.voting_total
         const confirm_total = responseData.data.confirm_total
