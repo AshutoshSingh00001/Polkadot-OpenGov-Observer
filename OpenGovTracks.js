@@ -1,7 +1,8 @@
 // Import required modules
 const express = require('express');
 const cron = require("cron");
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
+
 const { twitterClient } = require("./twitterClient.js");
 
 // Initialize Express app
