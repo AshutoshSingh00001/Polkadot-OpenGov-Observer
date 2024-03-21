@@ -227,7 +227,8 @@ const matchingVotesAye = aye.filter(vote => {
             const effectiveVotes = (balanceDot * lockPeriod).toLocaleString();
             const referendumLink = `https://polkadot.polkassembly.io/referenda/${postId}`
             const tweetData = `${identities.join(', ')} ${twitter} voted ${decision} with ${formattedTotalDOT} DOT with a total effective votes of ${effectiveVotes} DOT and ${lockPeriod}x conviction on Referendum ${postId} ${referendumLink}\n\n#DOT #POLKADOT #OpenGOV #votes`;
-            const tweet = async () => {
+            const totalVotes = balanceDot * lockPeriod;
+                const tweet = async () => {
                     try {
                         await twitterClient.v2.tweet(tweetData);
                     } catch (e) {
@@ -242,7 +243,13 @@ const matchingVotesAye = aye.filter(vote => {
             console.log(postId)
             console.log(identities.join(', '))
             console.log(twitter)
-                    return tweet()
+            if(totalVotes > 500){
+                console.log("success")
+                return tweet()
+            } else {
+                console.log("tweet not sent")
+            }
+                    // return tweet()
         } else {
             console.log(`${voteType} failed`);
         }
