@@ -79,4 +79,11 @@ const OpenGovTracks = async() => {
   }
 
   
-  OpenGovTracks()
+  // OpenGovTracks()
+  const pollingJob = new CronJob("0 0 1 * *", async () => {
+    console.log("Checking for new votes...");
+    await OpenGovTracks()
+});
+
+// Start the CronJob
+pollingJob.start();
